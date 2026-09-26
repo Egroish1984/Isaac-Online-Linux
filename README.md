@@ -1,21 +1,41 @@
-# Isaac Online Modded
+# Isaac Online Modded for Linux (CLI, C port)
 
-This tool allows you to patch the game binary of **The Binding of Isaac** to enable mods in online co-op play without the need to disable them beforehand. 
+A rewrite of the "Isaac Online Modded" WPF tool, now in plain C so it runs on Linux. It patches the **The Binding of Isaac** executable (`isaac-ng.exe`) so mods stay enabled during online co-op, and it can patch the External Item Descriptions (EID) mod for the same reason. There's no GUI here, just a small terminal program you build with a normal Makefile.
 
-This tool also allows you to modify the External Item Descriptions mod in a way to enable using it in coop.
+## Build
 
-**Note:** You will need to run the patch again each time the game updates.
+```sh
+make
+```
 
-## Warning
+That produces one binary: `isaac-online-modded`.
 
-While this patch allows starting online co-op with any mod installed, doing so can quickly cause desync issues. It often helps if all players have the same mods installed. ***Additionally, some mods may work even if others don't have them installed, but they might require special handling.***
+## Run
 
-*For further information, see the specific subdirectories (e.g., for External Item Descriptions).*
+```sh
+./isaac-online-modded                         # tries to auto-detect the Steam install
+./isaac-online-modded /path/to/isaac-ng.exe   # or point it at the exe yourself
+```
 
-## Disclaimer
+Auto-detection checks the usual Steam spots (`~/.steam/steam`, `~/.local/share/Steam`, the Flatpak Steam path) plus any extra Steam libraries listed in `libraryfolders.vdf`. GOG and Epic detection didn't make the cut, since their Linux install layout isn't as predictable as Steam's. If you're on one of those, just pass the game's path as an argument or type it in when the program asks.
 
-This tool is intended for **friends-only co-op play**. While it probably works in other scenarios, those are not explicitly accounted for. **I do not condone ruining other players' experiences in online matches.**
+Once it's running, the menu lets you:
+1. Patch co-op mods plus the analytics-crash fix
+2. Patch co-op characters (needs step 1 done first)
+3. Patch EID's `eid_api.lua` for co-op
+4. Change the game path
+5. Refresh the status display
 
----
+Every write happens atomically (write to a temp file, then rename it into place), same as the original tool did.
 
-Please use this tool responsibly and enjoy your enhanced co-op experience!
+## Files
+
+- `patch.c` / `patch.h`: byte-pattern find and replace on the game executable, ported from `GamePatcher.cs`.
+- `eid_patch.c` / `eid_patch.h`: text patch for `features/eid_api.lua`, ported from `EIDPatcher.cs`.
+- `main.c`: the CLI menu, Steam path autodetection, and EID mod-folder discovery. This replaces `MainWindow.xaml(.cs)`.
+
+## Notes
+
+- This only edits the binary and lua files on disk. It doesn't run or inject into the game process.
+- Re-run the patch after every game update, just like before.
+- Same disclaimer as the original: this is meant for friends-only co-op, so use it responsibly.
