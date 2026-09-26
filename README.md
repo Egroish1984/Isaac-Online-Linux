@@ -1,5 +1,6 @@
 # Isaac Online Modded for Linux (CLI, C port)
 (Notice: this project was written with AI! sorry, I don't know how to write on C :c )
+
 A rewrite of the "Isaac Online Modded" WPF tool, now in plain C so it runs on Linux. It patches the **The Binding of Isaac** executable (`isaac-ng.exe`) so mods stay enabled during online co-op, and it can patch the External Item Descriptions (EID) mod for the same reason. There's no GUI here, just a small terminal program you build with a normal Makefile.
 
 ## Build
